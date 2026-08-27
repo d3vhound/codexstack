@@ -1,7 +1,7 @@
 {
   "name": "codexstack",
-  "version": "0.1.0",
-  "description": "Evidence-driven engineering workflows for Codex",
+  "version": "0.2.0",
+  "description": "High-throughput, evidence-driven engineering workflows for Codex",
   "author": {
     "name": "Devion Villegas",
     "url": "https://github.com/d3vhound"
@@ -13,14 +13,16 @@
     "codex",
     "engineering",
     "subagents",
+    "cloud-agents",
+    "ascii-box",
     "verification",
     "workflow"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "CodexStack",
-    "shortDescription": "Evidence-driven Codex work",
-    "longDescription": "A concise Codex-native workflow for understanding code, making the smallest coherent change, delegating independent work, and proving the result on the real artifact.",
+    "shortDescription": "Poteto-grade Codex work",
+    "longDescription": "A concise Codex-native operating system for deep engineering, model-diverse subagents, bounded autonomous programs, exact-revision delivery, and optional ASCII Box cloud workers.",
     "developerName": "Devion Villegas",
     "category": "Developer Tools",
     "capabilities": [
@@ -32,7 +34,7 @@
     "defaultPrompt": [
       "Use CodexStack to reproduce this bug, fix its root cause, and prove the result.",
       "Use CodexStack to implement this feature with the smallest coherent change.",
-      "Use CodexStack to review this change with independent evidence."
+      "Use CodexStack to run this program with isolated owners and durable state."
     ]
   }
 }

@@ -1,6 +1,6 @@
 interface:
   display_name: "CodexStack"
-  short_description: "Evidence-driven engineering workflows"
-  default_prompt: "Use $work to complete this engineering task with evidence and verification."
+  short_description: "Poteto-grade Codex engineering"
+  default_prompt: "Use $codexstack:work to complete this engineering task with evidence and matching-surface proof."
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false

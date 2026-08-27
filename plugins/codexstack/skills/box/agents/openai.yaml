@@ -1,0 +1,6 @@
+interface:
+  display_name: "CodexStack Box"
+  short_description: "Private Box execution for CodexStack"
+  default_prompt: "Use $codexstack:box to provision and steer a private ASCII Box with a finite lifetime."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,14 @@
+{
+  "environment": "codexstack",
+  "template": "codexstack-base",
+  "ttl_seconds": 43200,
+  "template_ttl_seconds": 3600,
+  "marketplace": "d3vhound/codexstack",
+  "plugin": "codexstack@codexstack",
+  "repositories": [
+    {
+      "repo": "d3vhound/codexstack",
+      "branch": "main"
+    }
+  ]
+}

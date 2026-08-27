@@ -1,84 +1,121 @@
 # Change workflows
 
-Use the common loop, then apply the gate for the request type.
+Use this reference when the user asked for an implementation, repair, migration, cleanup, prototype, visual match, or performance/code-quality change. Keep the process proportional: trivial safe edits may skip heavyweight comparison or delegation, but must still name the matched workflow and any skipped gates with reasons.
 
-## Common loop
+## Common audited loop
 
-1. **Ground.** Read applicable repository guidance, current changes, entry points, callers, tests, types, and relevant history. Establish what the product does now.
-2. **Frame.** State the observable acceptance condition, affected data shape, likely boundaries, and strongest feasible verification. Use a plan only when the task has multiple meaningful steps.
-3. **Settle the shape.** If the design is consequential and unresolved, compare two or three structurally different sketches against explicit criteria. If the fork is observable, run a small isolated probe instead of asking the user to guess.
-4. **Partition.** Identify blocking work, independent slices, shared state, and the smallest safe ownership boundaries. Parallel writers require disjoint paths or separate worktrees.
-5. **Implement.** Make the smallest coherent change. Delete obsolete code in the same wave. Avoid speculative abstractions, compatibility layers, and unrelated cleanup.
-6. **Inspect.** Review every delegated diff and the integrated result. Reject code that passes checks by weakening the contract, hiding the symptom, or changing the verifier.
-7. **Verify.** Exercise the acceptance condition on the matching surface, then run targeted tests and static checks. Record exact commands and observed outcomes.
-8. **Handoff.** Report the user-visible result, the main design choice, changed files, verification, and remaining risk. Open a PR, push, or merge only when requested.
+Every change runs through this state machine:
 
-## Bug
+1. **Ground.** Read repository instructions, dirty state, entry points, current behavior, callers, types, tests, and relevant history. Recall prior decisions when the repo provides them.
+2. **Frame.** State the observable acceptance condition, affected shape, blast radius, and strongest feasible proof. Use a plan only when there are multiple meaningful steps.
+3. **Before proof.** Capture the current behavior on the matching surface: the same command, UI, API, workload, rendered state, artifact, or user path that demonstrates the requested concern. If blocked, record why and use the closest honest substitute.
+4. **Shape.** When adding a requirement to an existing design, ask what the holistic day-one design would be and propagate it through types, code, docs, examples, and rationale. For consequential or unresolved design, compare two or three structurally different options against explicit criteria. For empirical forks, run a small probe rather than asking the user to guess.
+5. **Partition.** Identify blocking work, independent slices, shared state, and safe ownership boundaries. Parallel writers need disjoint paths or separate worktrees.
+6. **Implement.** Make the smallest coherent change. Delete obsolete code in the same wave. Avoid speculative abstractions, compatibility layers, and unrelated cleanup.
+7. **Inspect.** Review the integrated diff and every delegated diff. Reject changes that pass by weakening the contract, hiding the symptom, or changing the verifier.
+8. **After proof.** Rerun the matching-surface proof, then targeted tests/static checks. Record exact commands, artifacts, before/after observations, and residual uncertainty.
+9. **Handoff.** Lead with the user-visible result, changed files, proof, risks, and next decision. Push, PR, merge, deploy, or message externally only when requested.
 
-Required gates:
+## Blast-radius, recall, and teach gates
 
-1. Reproduce the defect before the first fix. Drive the same surface the user reported. If direct reproduction is blocked, state why and instrument or synthesize the trigger as far as possible.
-2. Trace competing hypotheses and eliminate them with evidence. Confirm the causal mechanism, not merely a plausible location.
-3. Add a cheap regression test first when one clearly targets the failure. Do not force a low-value test through an expensive or unclear integration path.
-4. Fix the cause with the narrowest complete change. A guard that only hides the failure is not a root-cause fix.
-5. Rerun the original reproduction after the change. Then run the regression and affected suite.
+- **Blast radius.** Before risky edits, map callers, consumers, persisted formats, configuration, migrations, concurrency, tests, generated artifacts, and external contracts. Prove the safety property at the narrowest level that can fail.
+- **Recall.** Reuse existing project decisions, conventions, tests, notes, and prior failures before inventing a new pattern.
+- **Teach.** If the user asks to learn the changed subsystem, route to the read-only Teach workflow after the change is proven: combine current mechanics with calibrated rationale and preserve uncertainty. Encode recurring engineering lessons through tests, types, checks, or focused documentation; do not add narration that code or tests already express.
 
-No reproduction means the result is unverified, even if a test passes.
+## Workflow state machines
 
-## Feature
+### Bug
 
-Required gates:
+Required states:
 
-1. Describe the behavior from the caller or user outward.
-2. Name one authoritative domain shape before writing stateful logic. Prefer a state machine, tagged union, reducer, table, registry, or typed model over scattered flags and repeated conditionals.
-3. Identify parsing, persistence, network, UI, and compatibility boundaries. Validate external data once at those boundaries.
-4. Design the public usage before internals when the feature crosses a function or module boundary.
-5. Verify the complete user-facing path, including error and recovery behavior that the change introduces.
+1. **Reported surface.** Identify the exact surface the user or failing system observed.
+2. **Reproduce before.** Trigger the defect on that surface before the first fix. If unavailable, record the blocker and the closest instrumented/synthetic trigger.
+3. **Hypotheses.** Trace competing causes and eliminate them with evidence.
+4. **Root cause.** Confirm the causal mechanism, not just a plausible location.
+5. **Regression pin.** Add a cheap failing test first when it clearly targets the failure. Skip only if the path is expensive, unclear, or lower value than direct reproduction.
+6. **Fix.** Change the cause narrowly and completely. A guard that only hides the symptom is not a root-cause fix.
+7. **Reproduce after.** Rerun the original matching-surface reproduction, then the regression and affected suite.
 
-## Refactor or migration
+No matching-surface before/after proof means the bug fix is unverified.
 
-Required gates:
+### Performance
 
-1. Pin current behavior with a characterization test, snapshot, recorded baseline, or equivalence harness before structure moves. Type checking alone is not a behavior contract.
-2. Name the target module, type, and call shape. The new structure must delete branches, invalid states, or reader burden rather than add indirection.
-3. Remove dead weight first. Move in small units while the behavior pin stays green.
-4. Migrate all internal callers and delete the old API in the same wave. Keep a compatibility adapter only for a proven external contract.
-5. Compare old and new behavior on the real artifact. If reader load did not fall, reconsider the refactor.
+Required states:
 
-## Performance or forensics-backed fix
+1. **Workload.** Reproduce the reported workload or a documented equivalent.
+2. **Baseline.** Capture a before metric or trace with method, sample count, and expected noise.
+3. **Attribution.** Tie the cost to a source-level mechanism.
+4. **Change.** Alter that mechanism only.
+5. **Comparable after.** Measure the same workload with the same method.
+6. **Regression gate.** Run correctness checks and report before/after/noise.
 
-For a one-off performance issue:
+### Refactor or migration
 
-1. Reproduce the reported workload and capture a baseline trace or metric.
-2. Attribute the cost to a source-level mechanism.
-3. Change that mechanism.
-4. Capture a comparable result with the same workload and measurement method.
-5. Report the before, after, noise or sample count, and regression checks.
+Required states:
 
-For sustained hill-climbing:
+1. **Behavior pin.** Capture current behavior with a characterization test, snapshot, fixture, equivalence harness, or real-artifact baseline. Type checking alone is not enough.
+2. **Target shape.** Name the target module, type, public call shape, and invalid states or reader burden being removed.
+3. **Phase the move.** For an ordinary refactor, keep the behavior pin green after every unit. For a planned rewrite or migration, declare phase boundaries and any temporary breakage before starting. Keep high-signal checks for touched areas green; permit only scoped, reversible instability within the declared phase; require the full pin plus static and runtime proof at completion. Do not add throwaway compatibility merely to smooth an intermediate state.
+4. **Migrate/delete.** Update internal callers and delete the old API in the same wave. Keep adapters only for proven external contracts.
+5. **Equivalence after.** Compare old/new behavior on the real artifact or matching surface.
+6. **Reader test.** If the result adds indirection without reducing risk, branches, or reader load, reconsider.
 
-1. Freeze a sensitive, repeatable measurement harness and a correctness gate.
-2. Define a numeric target and minimum evidence needed to stop.
-3. Run one hypothesis per iteration. Measure before and after; keep it only if it beats noise while correctness remains green. Revert the rest.
-4. Log each hypothesis, measurement, verdict, and commit or revert. Pivot after a plateau rather than stacking unmeasured tweaks.
+### Visual parity
 
-## Prototype
+Required states:
 
-- Use an isolated scratch directory. Production source stays unchanged.
-- State the decision the prototype will settle.
-- Build the lightest artifact that exposes the behavior, timing, or visual choice.
-- Put alternatives behind one comparison surface when practical.
-- Observe the result directly and recommend a direction. The output is the decision and throwaway artifact, not production code.
+1. **Baseline capture.** Capture immutable before images/artifacts across relevant states.
+2. **Harness lock.** Do not change harness, crop, viewport, threshold, seed, or baseline to make the result pass.
+3. **Single visual unit.** Change one independently verifiable component or state at a time.
+4. **Matching render after.** Compare on the same rendered surface.
+5. **Explain diff.** Any nonzero unexplained difference is a failure, not an approximation.
 
-## Visual parity
+### Forensics-backed fix
 
-1. Capture an immutable baseline across the relevant states before editing.
-2. Do not alter the harness, crop, threshold, or baseline to make the result pass.
-3. Change one independently verifiable component or state at a time.
-4. Compare on the matching rendered surface. A nonzero unexplained difference is a failure, not an acceptable approximation.
+Required states:
 
-## Code quality
+1. **Artifact identity.** Identify the dump, trace, log, profile, report, capture, or incident signal and its time/window.
+2. **Queryable form.** Transform large artifacts only enough to inspect dominant frames, chains, transitions, or events.
+3. **Source map.** Resolve findings to files, symbols, configs, or data shapes.
+4. **Mechanism check.** Confirm with a focused experiment when possible; otherwise label the finding as supported hypothesis.
+5. **Fix and compare.** Change the mechanism and compare against the artifact-derived signal or a faithful reproduction.
 
-- Comments explain a non-obvious external constraint, public contract, legal requirement, or why the code cannot express the reason itself. Remove narration, banners, commented-out code, and workaround essays.
-- Suppressions require a concrete reason the rule is wrong for this location. Prefer fixing the code or the rule.
-- Keep the final diff scoped. Preserve unrelated dirty-worktree changes.
+### Feature
+
+Proportional states:
+
+1. **User-out behavior.** Describe the behavior from the caller or user outward.
+2. **Domain shape.** Name one authoritative state machine, tagged union, reducer, table, registry, schema, or typed model before writing stateful logic.
+3. **Boundaries.** Identify parsing, persistence, network, UI, compatibility, and error/recovery boundaries. Validate external data once at boundaries.
+4. **Public usage.** Design public usage before internals when the feature crosses a function/module boundary.
+5. **Complete path proof.** Verify the full user-facing path, including introduced failure and recovery behavior.
+
+### Prototype
+
+Proportional states:
+
+1. **Decision.** State the decision the prototype will settle.
+2. **Isolation.** Use scratch or an explicitly isolated branch/worktree. Production source stays unchanged unless the user asked otherwise.
+3. **Light artifact.** Build the smallest artifact that exposes behavior, timing, API shape, or visual choice.
+4. **Comparison surface.** Put alternatives behind one comparable surface when practical.
+5. **Recommendation.** Observe directly and recommend a direction. The deliverable is the decision and throwaway artifact, not production code.
+
+### Hillclimb
+
+Proportional states:
+
+1. **Harness.** Freeze a sensitive repeatable measurement and correctness gate.
+2. **Target.** Define a numeric goal, minimum evidence, and stop condition.
+3. **One hypothesis.** Change one hypothesis per iteration.
+4. **Keep/revert.** Keep only wins that beat noise while correctness stays green; revert the rest.
+5. **Log.** Record hypothesis, measurement, verdict, and commit/revert. Pivot after a plateau rather than stacking unmeasured tweaks.
+
+### Code quality
+
+Proportional states:
+
+1. **Contract.** Identify whether the request is readability, typing, lint, dead code, comments, suppression, naming, or architecture.
+2. **Behavior guard.** For mechanical cleanups, run existing tests/types. For semantic cleanups, pin behavior first.
+3. **Smallest cleanup.** Remove narration, banners, stale comments, commented-out code, workaround essays, dead branches, and unnecessary suppressions.
+4. **Suppression audit.** Keep suppressions only with a concrete reason the rule is wrong for that location; prefer fixing code or rule.
+5. **Scoped proof.** Show that behavior stayed stable or the intended quality gate improved.

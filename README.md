@@ -1,118 +1,156 @@
 # CodexStack
 
-Depth before scale. Evidence before done.
+Poteto-grade engineering for Codex, without the Cursor runtime.
 
-CodexStack is a concise, Codex-native engineering workflow for non-trivial code work. It teaches Codex to understand the system first, use subagents only across real seams, make the smallest coherent change, and prove the result on the real artifact.
-
-It is an independent adaptation of [pstack](https://github.com/cursor/plugins/tree/main/pstack) for Codex. It preserves the engineering method without carrying over Cursor-specific commands, model panels, agents, rules, Graphite runtime, or automation machinery.
+CodexStack gives Codex the part of pstack that creates throughput: visible gates, evidence before claims, model-diverse deliberation, isolated writable ownership, exact-revision delivery, and bounded autonomous programs. The port is intentionally small. Native Codex plans, subagents, worktrees, skills, plugins, and MCP do the work; CodexStack supplies the operating contract.
 
 ## Install
 
-~~~bash
+Add this repository as a Codex plugin marketplace, then install the plugin:
+
+```bash
 codex plugin marketplace add d3vhound/codexstack
 codex plugin add codexstack@codexstack
-~~~
+```
 
-Start a new Codex session after installation.
+Start a new Codex session. Then ask for the outcome in normal language:
 
-Plugins are available in the Codex CLI and the ChatGPT desktop app:
+```text
+Reproduce the account-switching bug, fix the root cause, and prove the same repro passes.
 
-- Codex CLI: invoke $codexstack:work.
-- ChatGPT desktop: type @ and select CodexStack's Work skill.
+Explain how cancellation works and why this boundary exists. Do not change code.
 
-The Codex IDE extension supports standalone skills rather than plugins. In the IDE, ask the skill installer to install the skill directly from:
+Build this feature. Use independent agents where that improves confidence or speed.
 
-~~~text
-https://github.com/d3vhound/codexstack/tree/main/plugins/codexstack/skills/work
-~~~
+Run this as a durable program. Stop all writes if I say stop.
+```
 
-Invoke that standalone IDE install as $work.
+The core workflow is explicit-only, like upstream Poteto Mode. Invoke `$codexstack:work` or directly ask for CodexStack/Poteto-style execution; terse follow-ups then remain inside that workflow:
 
-## Use in Codex CLI
+```text
+$codexstack:work Check whether PR 418 is ready. Do not merge it.
+```
 
-Invoke the workflow explicitly:
+The IDE can install the core skill directly from [`plugins/codexstack/skills/work`](plugins/codexstack/skills/work). Invoke a standalone install as `$work`.
 
-~~~text
-$codexstack:work Reproduce this bug, fix the root cause, and prove the behavior.
+## What you get
 
-$codexstack:work Explain how cancellation works and why it was designed this way. Do not change code.
+The lead agent still owns the result. Subagent reports are evidence, not proof.
 
-$codexstack:work Review this branch adversarially. Report only findings you can substantiate.
+- Every matched gate appears in the plan. A skipped gate stays visible with a concrete reason.
+- The first multi-step plan item reads the full compact Principles contract. The selected one of 23 matched playbooks is then copied verbatim into the plan before task-specific work.
+- Before fan-out, Codex identifies blocking first steps, independent streams, shared mutable state, and the smallest safe split.
+- Every non-trivial task produces a rerunnable lever file that performs or proves the work. Repeated work gets a hand-built pilot, a lever rerun, and a diff before scale.
+- Architect, Arena, Swarm, and Interrogate use different topologies for design, competing candidates, coverage, and adversarial judgment.
+- Bug, performance, refactor, and visual work use explicit before-and-after evidence state machines.
+- `how` traces current mechanics and Critique explains before challenging architecture. `why` searches each available historical evidence category and labels confidence as Direct, Supported, Inferred, Speculative, or Unknown.
+- Large, cross-cutting, no-fit, and unattended runs use a bespoke Figure it out workflow. They close with an audited append-only evidence trail, a fresh reviewer, and row-specific `Attention` flags.
+- Project verifier creation interviews the repository, maps user features, and proves one real path. Maintenance source-checks and live-drives every mapped feature without editing product code.
+- PR verdicts bind to the exact head SHA. A changed head invalidates the verdict until it is checked again.
+- Full autopilot may land only with explicit authority. Stack autopilot maintains one ordered topology and never merges.
+- A program coordinator owns briefs, state, gates, and reconciliation. It does not edit product code.
+- Trivial work stays trivial. Read-only work stays read-only.
+- The handoff leads with consumer and maintainer impact, then traces each applied principle to the concrete decision it changed.
 
-$codexstack:work Build this feature. Use parallel agents where the work is truly independent, then verify it end to end.
-~~~
+The core has one router with lazy reference files instead of dozens of overlapping commands. See [the parity ledger](docs/PARITY.md) for the full source-to-contract mapping.
 
-Codex can also select it implicitly when the request calls for the workflow.
+Optional Explorer, Architect, Implementer, Judge, and Verifier templates live in [`plugins/codexstack/skills/work/assets/agents`](plugins/codexstack/skills/work/assets/agents). Copy only the roles you want into a repository's `.codex/agents/` directory or your user-level `~/.codex/agents/` directory. Review their model names and sandbox modes first; the core workflow works without them.
 
-## The loop
+Per-role models and panel sizes are also configurable. Ask `$codexstack:work` to configure CodexStack models. It detects only model IDs exposed to the active session, shows every role and panel, validates the selection, and writes a project or personal policy. `inherit-parent` and `auto` remain portable fallbacks.
 
-~~~text
-Classify → define observable done → ground → isolate work
-→ make the smallest justified change → prove the real artifact
-→ add fresh review when risk warrants it → hand back evidence
-~~~
+Five standard-library helpers enforce the small pieces native orchestration should not guess. [`state.py`](plugins/codexstack/skills/work/scripts/state.py) keeps atomic program state, topology-safe frontiers, leases, inbox, audited stop and release history, and exact-SHA verdicts. [`pr_readiness.py`](plugins/codexstack/skills/work/scripts/pr_readiness.py) classifies already-fetched PR snapshots and advances a frozen owner/repository/PR queue while rechecking changed heads. It reports upstream-compatible `babysit_ready` separately from the stricter evidence-only `provider_landing_gate_clear`. Babysit stops on the first; every authorized Land mutation additionally requires a fresh exact-head second signal plus independent proof, contiguous-prefix membership, unchanged identity, and authority. [`check_plan.py`](plugins/codexstack/skills/work/scripts/check_plan.py) audits the fixed multi-phase proof skeleton. [`worktree_audit.py`](plugins/codexstack/skills/work/scripts/worktree_audit.py) classifies exact Git worktree records from bounded local and supplied PR/use evidence without deleting anything. [`model_policy.py`](plugins/codexstack/skills/work/scripts/model_policy.py) validates persistent role choices against model IDs already observed in the current session. None launches, polls, schedules, fetches, merges, or deletes.
 
-CodexStack keeps one registered skill and loads only the playbook the task needs:
+## Optional cloud agents with ASCII Box
 
-| Route | Use |
+ASCII Box can run the same Codex workflow in a persistent Ubuntu VM. Its native Codex sign-in can use ChatGPT plan-backed Codex access, including your Pro subscription. Choose **Sign in with ChatGPT** in Box instead of supplying an OpenAI API key.
+
+One-time setup:
+
+1. In the Box dashboard, create a private environment named `codexstack`.
+2. Keep **Safe for third parties** off for this owner-only environment. Enable GitHub credentials and Agents credentials. Leave Box credentials off unless a task truly needs nested Box control.
+3. Under **Agents → Codex → ChatGPT**, choose **Sign in with ChatGPT** and finish the device flow with your ChatGPT account.
+4. Never share a box or snapshot created from this credential-bearing environment.
+
+Launch and steer a worker:
+
+```bash
+box new --environment codexstack --ttl 43200
+box prompt <box-id> --provider codex 'Use $codexstack:work. Fix the bug, prove it, and open a PR. Do not merge.'
+box events <box-id> --follow
+```
+
+To redirect a running managed turn, use `box interrupt <box-id>` and then send the revised `box prompt`. Use `box ssh <box-id>` for an interactive shell. Inside the box, verify access and install CodexStack once if the image does not already contain it:
+
+```bash
+codex login status
+gh auth status
+codex plugin marketplace add d3vhound/codexstack
+codex plugin add codexstack@codexstack
+codex mcp list
+```
+
+Box snapshots preserve `/home/user`, so Codex login state, plugin installs, user skills, and GitHub CLI configuration survive stop and resume. Snapshots can therefore contain credentials. Build reusable warm templates with `--no-env`, then start private copies with the private environment attached.
+
+Commit only portable configuration:
+
+| Concern | Portable project path | Keep out of Git |
+| --- | --- | --- |
+| Skills | `.agents/skills/` | Private transcript-derived skills unless intended |
+| MCP registration | `.codex/config.toml` | Tokens, cookies, and OAuth artifacts |
+| Plugin marketplace | `.agents/plugins/marketplace.json` | Installed-account state and credentials |
+| GitHub workflow | Repository files | `~/.config/gh/hosts.yml` and tokens |
+
+Use environment-variable names in committed MCP configuration, not secret values. Provider OAuth may need a one-time reconnect inside a new Box. The Box skill is explicit because launching paid compute and changing credential injection are authority-bearing actions:
+
+```text
+$codexstack:box Check this Box for Codex, GitHub, plugin, skill, and MCP readiness. Make no changes.
+```
+
+See the [ASCII Box quickstart](https://docs.ascii.dev/box/quickstart), [environments](https://docs.ascii.dev/box/environments), [long-running tasks](https://docs.ascii.dev/box/long-running-tasks), and [snapshot model](https://docs.ascii.dev/box/snapshots).
+
+### Does a Box CLI session appear in ChatGPT mobile?
+
+No. A standalone `codex` or `box prompt --provider codex` session on a Linux Box does not automatically appear in ChatGPT mobile just because it uses the same ChatGPT account.
+
+The supported mobile route is [Codex Remote](https://developers.openai.com/codex/remote-connections): pair the mobile app with ChatGPT desktop on macOS or Windows, add the Box as an SSH host in the desktop app, and start or continue the chat through that connected host. Existing unrelated CLI threads are not imported into mobile.
+
+## Behavioral parity, native implementation
+
+CodexStack is a behavioral carbon copy of pstack's core workflow and proof obligations, not a file-for-file clone. Codex-native authority boundaries remain stricter for external mutations such as pushes, PR changes, merges, deployments, and messages.
+
+| Preserved | Codex-native replacement |
 | --- | --- |
-| Change | Bugs, features, refactors, performance, prototypes, visual parity |
-| Investigate | How, why, blast radius, architectural decisions, forensics |
-| Review | Diffs, branches, PRs, architecture, comments and suppressions |
-| Delivery | Plans, PR readiness, landing, long runs, pause/resume, cleanup |
-| Evaluate | Blinded skill, prompt, and workflow tests |
+| Poteto routing, explicit sticky mode, and matched gates | One explicit-only Codex skill router with natural-language steering after activation and lazy references |
+| All 23 playbook step sequences | One matched-playbook registry whose numbered states are copied verbatim into native Codex plans |
+| Candidate panels, investigators, judges, and workers | Native Codex subagents with optional model-role templates |
+| Independent writable ownership | Codex worktrees or disjoint file scopes |
+| Durable program frontier, ledger, and stop state | A small deterministic state helper; Codex remains the scheduler |
+| PR watcher policy and exact-revision proof | A deterministic readiness classifier plus native GitHub tools |
+| Multi-phase plan lint | A passive standard-library checker for unit, live, perf, interaction, dependency, and delivery proof blocks |
+| Skill, review, and verification discipline | Codex skills, plugin packaging, and independent verification |
 
-## Why this shape
-
-The audited pstack snapshot contains 45 top-level skills, 23 playbooks, about 85,000 words of Markdown, and more than 6,000 lines of scripts. Its durable behavior is much smaller. The quality comes from routing, evidence, isolation, verification, and lead-agent ownership.
-
-CodexStack translates the underlying ideas into native Codex primitives:
-
-| pstack / Cursor | CodexStack |
-| --- | --- |
-| Slash-command mode and many leaf skills | One $codexstack:work router with lazy references |
-| Cursor task agents and fixed model panels | Native Codex subagents that inherit the user's model and reasoning |
-| Cursor todo lists | Codex plans only when the work is genuinely multi-step |
-| Shared agent writes | Disjoint scopes or separate Codex worktrees/checkouts |
-| Cursor rules and sticky mode | Skill activation; optional project guidance belongs in AGENTS.md |
-| Cursor loop command | A bounded exit predicate with durable checkpoints |
-| Graphite-only PR shipping | Repository-native Git and GitHub flow, with stack tools only when the repo uses them |
-| Custom PR watcher and orchestration database | Native tools and concise policy; no bundled runtime |
-| Benny automation pack | Deferred as a separate future integration |
-
-The package has no MCP server, hook, model dependency, executable runtime, or third-party package.
-
-## What it deliberately changes
-
-- Trivial edits stay trivial. No mandatory plan or subagent theater.
-- Read-only questions remain read-only.
-- Parallelism is proportional and bounded. One writable target has one owner.
-- Models are not hardcoded. Codex and the user own model selection.
-- Real behavior is the proof. Compilation and agent summaries are not enough.
-- Review findings are verified and judged, not blindly aggregated.
-- Merges, deployments, destructive cleanup, and external communication stay behind user authority.
-- Comment cleanup is a code-quality rule, not a persona.
+CodexStack does not port Cursor `Task` calls, `subagent_type`, slash commands, sticky-command UI, `.cursor` paths, Graphite as a requirement, the Cursor provider roster, Grok Bot UI, or Benny automation. It does not add a second agent scheduler. Merges, deployments, destructive operations, credential expansion, and external messages remain behind explicit user authority.
 
 ## Validate
 
-~~~bash
+```bash
 python3 scripts/validate.py
-~~~
+python3 -m unittest discover -s tests -v
+```
 
-The validator checks the marketplace, plugin manifest, skill metadata, reference graph, runtime word budget, provenance, and accidental Cursor-only instructions. CI runs the same command.
+[`evals/scenarios.md`](evals/scenarios.md) is the forward-evaluation catalog for real Codex sessions. Executable unit tests enforce the critical runtime contracts and fail-closed helpers in CI. The [evaluation record](evals/RESULTS.md) separates what passed from the fresh-model cases this managed development runtime could not start.
 
-Behavioral cases live in [evals/scenarios.md](evals/scenarios.md). They cover trivial work, read-only investigation, a root-cause bug, a domain-shaped feature, an empirical fork, a behavior-preserving migration, parallel package work, and PR safety.
+## Sources and attribution
 
-## Sources
+- [pstack](https://github.com/cursor/plugins/tree/main/pstack), audited at commit [`fdf357fae76feff7e5f2e5aaff57f99f644b55f8`](https://github.com/cursor/plugins/commit/fdf357fae76feff7e5f2e5aaff57f99f644b55f8)
+- [OpenAI Codex authentication](https://developers.openai.com/codex/auth)
+- [OpenAI Codex plugins](https://developers.openai.com/codex/plugins)
+- [OpenAI Codex skills](https://developers.openai.com/codex/build-skills)
+- [OpenAI Codex subagents](https://developers.openai.com/codex/agent-configuration/subagents)
+- [OpenAI Codex MCP](https://developers.openai.com/codex/mcp)
+- [OpenAI Codex worktrees](https://developers.openai.com/codex/environments/git-worktrees)
+- [ASCII Box documentation](https://docs.ascii.dev/box)
 
-- [pstack source](https://github.com/cursor/plugins/tree/main/pstack), audited at commit [fdf357f](https://github.com/cursor/plugins/commit/fdf357fae76feff7e5f2e5aaff57f99f644b55f8).
-- [OpenAI: Build skills](https://developers.openai.com/codex/build-skills).
-- [OpenAI: Codex subagents](https://developers.openai.com/codex/agent-configuration/subagents).
-- [OpenAI: AGENTS.md](https://developers.openai.com/codex/agent-configuration/agents-md).
-- [OpenAI: Package plugins](https://developers.openai.com/plugins/build/plugins).
+See [`NOTICE.md`](NOTICE.md) for attribution. CodexStack is an independent adaptation. It is not affiliated with or endorsed by Lauren Tan, Cursor, ASCII, or OpenAI.
 
-See [NOTICE.md](NOTICE.md) for attribution. CodexStack is not affiliated with or endorsed by Lauren Tan, Cursor, or OpenAI.
-
-## License
-
-MIT.
+MIT licensed.

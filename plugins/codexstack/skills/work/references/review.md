@@ -1,51 +1,39 @@
 # Review workflow
 
-Review is read-only unless the user explicitly asks to fix accepted findings.
+Review is read-only unless the user explicitly authorizes fixes. Never edit, push, reply, dismiss, resolve, merge, or message externally during review-only work.
 
-## Establish the contract
+## No-comments gate
 
-1. Determine the base and head, requested scope, and intended behavior from the prompt, commits, issue, or PR.
-2. Inspect the complete diff plus enough callers, types, tests, and configuration to understand its effect.
-3. Identify the highest-risk paths before reading for style. Focus on correctness, security, data integrity, concurrency, compatibility, user behavior, and missing proof.
+Before review, commission a fresh read-only reviewer on the exact diff. It audits every added or changed comment, suppression, ignored error, disabled check, and workaround, demanding evidence for constraints that remain. The lead reads the diff and evidence, then accepts or rejects each finding independently. Only an authorized writer fixes accepted findings and reruns proof. The reviewer never mutates the artifact or supplies its own proof.
 
-If intent is genuinely ambiguous and changes the verdict, ask. Do not invent a target and review against it.
+## State machine
 
-## Add independent pressure when it earns its cost
+1. **Contract.** Resolve base, head, scope, intent, and constraints from the prompt and repository evidence.
+2. **Diff.** Inspect the complete diff plus affected callers, types, tests, config, migrations, generated artifacts, and runtime paths.
+3. **Risk.** Prioritize correctness, security, privacy, data, concurrency, compatibility, behavior, operability, and missing proof over style.
+4. **Pressure.** For broad, contested, or high-risk work, give two or three fresh reviewers the same intent, revision, constraints, and evidence standard. Partition by concern only when coverage earns its cost.
+5. **Reconcile.** The lead reads cited code and every claim, then marks it confirmed, partial, contradicted, duplicate, or dismissed. Agreement raises confidence but proves nothing. Verify actionable claims with current code and practical read-only proof.
+6. **Triage.** Return surviving findings before summary, ordered by severity. If none survive, say so and name proof gaps. Ask only when genuine ambiguity changes the verdict.
 
-For a broad, delegated, contested, or high-risk change, run independent reviewers in parallel. Give each the same intent, diff pointers, constraints, and evidence standard. Partition by concrete concern when coverage matters:
+## Read-only boundary
 
-- Runtime correctness and regressions.
-- Security, permissions, privacy, and data integrity.
-- State, concurrency, persistence, and migration behavior.
-- Tests, failure recovery, operability, and maintainability.
+Reading repository and linked evidence, plus non-mutating verification, is allowed. Without fix authority, never change source, tests, snapshots, locks, generated files, comments, suppressions, provider state, or verifier logic. For authorized fixes, use [change.md](change.md), limit scope, and review the resulting diff again.
 
-Two or three reviewers are normally enough. A trivial diff does not need a panel.
+## Findings and bot triage
 
-The coordinating agent reads the diff and every finding. Agreement raises confidence but does not make a claim true. Verify each actionable finding against the code and, where practical, a reproduction or focused test.
+Every actionable finding gives severity, file and symbol or line, failure mode, impact, evidence, and remediation or the minimum question.
 
-## Judge findings
+- **Blocker.** Substantiated correctness, security, privacy, data-loss, severe-regression, or unsafe-release risk.
+- **Should fix.** A real defect, compatibility break, missing migration or proof, or material maintenance risk.
+- **Consider.** A supported tradeoff that may not justify changing this patch.
+- **Dismissed.** Incorrect, unproven, style-only, duplicate, handled, or outside scope. Include useful disproof.
 
-Return findings before summary, ordered by severity.
+Never promote speculation to a bug. For automation, load [bugbot-triage.md](bugbot-triage.md) and label each finding **fix**, **dismiss**, or **ask**. Expose the disposition instead of forwarding bot claims.
 
-- **Blocker.** A substantiated correctness, security, data-loss, or severe regression risk.
-- **Should fix.** A real defect or missing test that should be resolved before normal delivery.
-- **Consider.** A valid tradeoff whose benefit may not justify changing this patch.
-- **Dismissed.** Incorrect, unproven, style-only, or already handled. Include this only when independent reviewers raised claims worth explicitly rejecting.
+## Comments and suppressions
 
-Every actionable item includes the file and symbol or line, the failure mode, why it matters, and the evidence. Do not report speculative possibilities as bugs. If no findings survive verification, say so and name any testing gap that limits confidence.
+Challenge narration, stale commentary, dead code, essays, and unexplained suppressions. Preserve legal headers, public contracts, concise external constraints, migration or incident rationale, and useful links. Prefer clear code or correct configuration over another comment.
 
-## Comment and suppression pass
+## Output
 
-Flag narration, banners, stale commentary, commented-out code, and long justifications for confusing internal code for deletion. Delete them only when the user authorizes fixes. Keep:
-
-- Legal or license headers.
-- Public API contracts.
-- Non-obvious behavior forced by an external platform, dependency, or protocol.
-- A concise reason that code cannot express.
-- Useful issue or decision links.
-
-Treat lint and type suppressions as review targets. Verify whether the rule protects correctness; recommend fixing the code or rule rather than suppressing it.
-
-## After review
-
-Do not edit, push, reply on the PR, dismiss threads, or merge as part of a review-only request. If the user asks to apply the accepted findings, route the implementation through [change.md](change.md) and verify the resulting diff again.
+Lead with findings. Give disposition, location, failure and impact, evidence, and fix or question. Then summarize exact revision and scope, proof, confidence, and gaps. Claim only supported confidence.
