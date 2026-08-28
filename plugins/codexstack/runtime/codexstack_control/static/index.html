@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>CodexStack Control</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#activity-heading">Skip to activity</a>
+
+    <div class="app-shell">
+      <aside class="run-rail" aria-label="Agent runs">
+        <header class="rail-header">
+          <div class="brand-lockup" aria-label="CodexStack Control">
+            <span class="brand-mark" aria-hidden="true"><span></span></span>
+            <span>CodexStack</span>
+          </div>
+          <button class="button button-primary button-compact" id="new-run-button" type="button" disabled>
+            <span aria-hidden="true">+</span>
+            New Agent
+          </button>
+        </header>
+
+        <div class="search-wrap">
+          <label class="sr-only" for="run-search">Search runs</label>
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <circle cx="7" cy="7" r="4.25"></circle>
+            <path d="m10.2 10.2 3.1 3.1"></path>
+          </svg>
+          <input id="run-search" type="search" placeholder="Search agents" autocomplete="off">
+          <kbd>⌘K</kbd>
+        </div>
+
+        <div class="rail-state" id="rail-state" role="status">
+          <span class="spinner" aria-hidden="true"></span>
+          Loading agents
+        </div>
+
+        <nav class="run-groups" id="run-groups" aria-label="Run inbox"></nav>
+
+        <footer class="rail-footer">
+          <div class="connection-line">
+            <span class="connection-dot" id="connection-dot" aria-hidden="true"></span>
+            <span id="connection-label">Connecting</span>
+          </div>
+          <button class="button button-quiet button-compact" id="access-button" type="button">Control access</button>
+        </footer>
+      </aside>
+
+      <main class="workspace" id="workspace">
+        <section class="activity-column" aria-labelledby="activity-heading">
+          <header class="run-header" id="run-header">
+            <button class="icon-button mobile-back" id="mobile-back" type="button" aria-label="Back to agent inbox">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10.5 3-5 5 5 5"></path></svg>
+            </button>
+            <div class="run-heading-wrap">
+              <div class="run-title-line">
+                <h1 id="activity-heading" tabindex="-1">Agent activity</h1>
+                <span class="status-pill status-neutral" id="selected-status">No run</span>
+              </div>
+              <div class="run-meta" id="run-meta">Select an agent to inspect its work.</div>
+              <div class="run-state-detail" id="run-state-detail" role="status" hidden></div>
+            </div>
+            <div class="header-actions" id="header-actions"></div>
+          </header>
+
+          <div class="setup-banner" id="setup-banner" hidden>
+            <div>
+              <strong>Box setup required</strong>
+              <span>Connect the Box environment before starting cloud agents.</span>
+            </div>
+            <button class="button button-secondary button-compact" id="setup-access-button" type="button">Retry setup</button>
+          </div>
+
+          <div class="activity-scroll" id="activity-scroll">
+            <div class="empty-stage" id="empty-stage">
+              <div class="empty-glyph" aria-hidden="true"><span></span></div>
+              <h2>No agent selected</h2>
+              <p>Choose a run from the inbox or start a focused cloud agent.</p>
+              <button class="button button-primary" id="empty-new-run" type="button" disabled>Start an agent</button>
+            </div>
+            <div class="timeline" id="timeline" role="log" aria-label="Agent transcript" aria-live="polite" aria-relevant="additions text" hidden></div>
+          </div>
+
+          <form class="composer" id="composer-form">
+            <label class="sr-only" for="composer-input">Message agent</label>
+            <textarea id="composer-input" rows="2" placeholder="Send the next instruction" disabled></textarea>
+            <div class="composer-footer">
+              <div class="composer-context" id="composer-context">Select an active agent</div>
+              <div class="composer-actions">
+                <button class="button button-danger-quiet" id="redirect-button" type="button" disabled>Interrupt &amp; redirect</button>
+                <button class="button button-primary" id="send-button" type="submit" disabled>Send next</button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="proof-pane" aria-label="Run proof and sandbox">
+          <header class="proof-header">
+            <div class="tab-list" role="tablist" aria-label="Run details">
+              <button class="tab-button is-active" id="changes-tab" type="button" role="tab" aria-selected="true" aria-controls="changes-panel">Changes</button>
+              <button class="tab-button" id="preview-tab" type="button" role="tab" aria-selected="false" aria-controls="preview-panel" tabindex="-1">Preview</button>
+              <button class="tab-button" id="desktop-tab" type="button" role="tab" aria-selected="false" aria-controls="desktop-panel" tabindex="-1">Desktop</button>
+            </div>
+          </header>
+
+          <div class="proof-scroll">
+            <section class="tab-panel" id="changes-panel" role="tabpanel" aria-labelledby="changes-tab">
+              <div class="proof-empty" id="proof-empty">
+                <span class="proof-empty-icon" aria-hidden="true"></span>
+                <h2>No run selected</h2>
+                <p>Branch evidence, checks, and pull request delivery appear here.</p>
+              </div>
+              <div id="changes-content" hidden></div>
+            </section>
+
+            <section class="tab-panel" id="preview-panel" role="tabpanel" aria-labelledby="preview-tab" hidden>
+              <div class="surface-intro">
+                <span class="surface-icon preview-icon" aria-hidden="true"></span>
+                <h2>Application preview</h2>
+                <p>Request a protected preview only when you need to inspect the running application.</p>
+              </div>
+              <button class="button button-primary button-full" id="request-preview" type="button" disabled>Load preview</button>
+              <div class="preview-frame-wrap" id="preview-frame-wrap" hidden>
+                <div class="preview-toolbar">
+                  <span id="preview-label">Live preview</span>
+                  <button class="button button-secondary button-compact" id="open-preview" type="button">Open in tab</button>
+                </div>
+                <iframe id="preview-frame" title="Agent application preview" sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts"></iframe>
+              </div>
+            </section>
+
+            <section class="tab-panel" id="desktop-panel" role="tabpanel" aria-labelledby="desktop-tab" hidden>
+              <div class="surface-intro">
+                <span class="surface-icon desktop-icon" aria-hidden="true"></span>
+                <h2>Live sandbox</h2>
+                <p>Open the Box desktop in a new top-level tab. Each access link is fresh and short-lived.</p>
+              </div>
+              <button class="button button-primary button-full" id="open-desktop" type="button" disabled>Open live sandbox</button>
+              <div class="detail-note">
+                <strong>Direct view</strong>
+                <span>The desktop is not embedded or saved by this control surface.</span>
+              </div>
+            </section>
+          </div>
+        </aside>
+
+        <nav class="mobile-view-tabs" aria-label="Run view">
+          <button class="mobile-view-button is-active" id="mobile-activity" type="button" aria-pressed="true">
+            <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 4.5h12M3 9h8M3 13.5h10"></path></svg>
+            Activity
+          </button>
+          <button class="mobile-view-button" id="mobile-review" type="button" aria-pressed="false">
+            <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 3.5h10v11H4zM6.5 7h5M6.5 10h5"></path></svg>
+            Review
+          </button>
+        </nav>
+      </main>
+    </div>
+
+    <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+
+    <dialog class="modal" id="new-run-dialog" aria-labelledby="new-run-title">
+      <form class="modal-card" id="new-run-form">
+        <header class="modal-header">
+          <div>
+            <span class="eyebrow">Cloud agent</span>
+            <h2 id="new-run-title">Start focused work</h2>
+          </div>
+          <button class="icon-button" id="close-new-run" type="button" aria-label="Close">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 3 10 10M13 3 3 13"></path></svg>
+          </button>
+        </header>
+
+        <div class="modal-body">
+          <label class="field field-wide">
+            <span>Repository</span>
+            <input id="new-repo" name="repo" type="text" placeholder="owner/repository" autocomplete="off" required>
+          </label>
+
+          <label class="field field-wide">
+            <span>Goal</span>
+            <textarea id="new-goal" name="goal" rows="5" placeholder="Describe the outcome, constraints, and proof you expect." required></textarea>
+          </label>
+
+          <label class="field">
+            <span>Base branch <small>optional</small></span>
+            <input id="new-base" name="baseRef" type="text" placeholder="main" autocomplete="off">
+          </label>
+
+          <label class="field">
+            <span>Model <small>optional</small></span>
+            <input id="new-model" name="model" type="text" placeholder="Server default" autocomplete="off">
+          </label>
+
+          <label class="field">
+            <span>Reasoning</span>
+            <select id="new-effort" name="reasoningEffort">
+              <option value="">Server default</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="xhigh">Extra high</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Time limit</span>
+            <select id="new-ttl" name="ttlSeconds" required>
+              <option value="7200">2 hours</option>
+              <option value="14400">4 hours</option>
+              <option value="28800">8 hours</option>
+              <option value="43200" selected>12 hours</option>
+            </select>
+          </label>
+        </div>
+
+        <footer class="modal-footer">
+          <p id="capacity-note">One isolated Box and branch will be created.</p>
+          <button class="button button-primary" id="start-run-button" type="submit">Start and open PR</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog class="modal modal-small" id="access-dialog" aria-labelledby="access-title">
+      <form class="modal-card" id="access-form">
+        <header class="modal-header">
+          <div>
+            <span class="eyebrow">Private control</span>
+            <h2 id="access-title">Control access</h2>
+          </div>
+          <button class="icon-button" id="close-access" type="button" aria-label="Close">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 3 10 10M13 3 3 13"></path></svg>
+          </button>
+        </header>
+        <div class="modal-body single-column">
+          <label class="field field-wide">
+            <span>Control token</span>
+            <input id="control-token" type="password" autocomplete="off" placeholder="Paste token">
+          </label>
+          <p class="field-help">Saved only for this browser tab and sent as an authorization header.</p>
+        </div>
+        <footer class="modal-footer">
+          <button class="button button-secondary" id="clear-access" type="button">Clear access</button>
+          <button class="button button-primary" type="submit">Save and connect</button>
+        </footer>
+      </form>
+    </dialog>
+  </body>
+</html>

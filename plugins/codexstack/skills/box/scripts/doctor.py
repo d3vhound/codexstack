@@ -11,7 +11,7 @@ import sys
 from dataclasses import dataclass
 
 
-BOX_ID = re.compile(r"^bx_[A-Za-z0-9]+$")
+BOX_ID = re.compile(r"^bx_[23456789abcdefghjkmnpqrstuvwxyz]{8}$")
 
 
 @dataclass(frozen=True)

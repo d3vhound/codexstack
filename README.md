@@ -13,16 +13,16 @@ codex plugin marketplace add d3vhound/codexstack
 codex plugin add codexstack@codexstack
 ```
 
-Start a new Codex session. Then ask for the outcome in normal language:
+Start a new Codex session. Activate CodexStack explicitly, then state the outcome in normal language:
 
 ```text
-Reproduce the account-switching bug, fix the root cause, and prove the same repro passes.
+$codexstack:work Reproduce the account-switching bug, fix the root cause, and prove the same repro passes.
 
-Explain how cancellation works and why this boundary exists. Do not change code.
+$codexstack:work Explain how cancellation works and why this boundary exists. Do not change code.
 
-Build this feature. Use independent agents where that improves confidence or speed.
+$codexstack:work Build this feature. Use independent agents where that improves confidence or speed.
 
-Run this as a durable program. Stop all writes if I say stop.
+$codexstack:work Run this as a durable program. Stop all writes if I say stop.
 ```
 
 The core workflow is explicit-only, like upstream Poteto Mode. Invoke `$codexstack:work` or directly ask for CodexStack/Poteto-style execution; terse follow-ups then remain inside that workflow:
@@ -108,6 +108,27 @@ $codexstack:box Check this Box for Codex, GitHub, plugin, skill, and MCP readine
 
 See the [ASCII Box quickstart](https://docs.ascii.dev/box/quickstart), [environments](https://docs.ascii.dev/box/environments), [long-running tasks](https://docs.ascii.dev/box/long-running-tasks), and [snapshot model](https://docs.ascii.dev/box/snapshots).
 
+### Thin control plane
+
+CodexStack also ships a local, single-operator control surface for managed Box workers. It adds a Cursor-like run inbox, streamed transcript, review pane, steering controls, and ten matching MCP tools while Box remains authoritative for execution and GitHub remains authoritative for PRs.
+
+Each explicit start gets one Box and one `codexstack/<run-id>-<slug>` branch. The default `maxParallel=4` is an admission limit, not four permanent agents or a background scheduler. A committed `.codexstack/worker.json` declares setup, verification, and optional preview commands as argument arrays. Delivery independently requires an open, non-draft PR whose local, remote, and GitHub head SHAs match. The controller never merges.
+
+Verification commands are rerun by the controller, but still inside the authoring Box; their receipts are not a tamper-resistant CI attestation. Use required GitHub checks and protected base branches with no worker bypass when that boundary matters.
+
+Start the loopback service after configuring your private Box environment:
+
+```bash
+export BOX_API_KEY="..."
+export CODEXSTACK_ALLOWED_REPOS="owner/repository"
+PYTHONPATH=plugins/codexstack/runtime \
+  python3 -m codexstack_control serve
+```
+
+Open `http://127.0.0.1:8765`. The installed plugin normally launches the same controller contract over portable stdio; UI mode also exposes `/mcp`. Use only one mode against a database at a time. Desktop and private preview URLs are requested only when clicked, are never stored, and are never returned through MCP. See [the complete control-plane contract](docs/CONTROL.md) and [Box setup guide](docs/BOX.md).
+
+The local contract can be verified offline with a fake Box service. A live authenticated Box-to-tested-PR canary is still required before claiming the full provider path works. A private mobile browser can use an operator-controlled HTTPS tunnel to the loopback UI; remote ChatGPT Work MCP is not faked and still requires a hosted OAuth service.
+
 ### Does a Box CLI session appear in ChatGPT mobile?
 
 No. A standalone `codex` or `box prompt --provider codex` session on a Linux Box does not automatically appear in ChatGPT mobile just because it uses the same ChatGPT account.
@@ -116,7 +137,7 @@ The supported mobile route is [Codex Remote](https://developers.openai.com/codex
 
 ## Behavioral parity, native implementation
 
-CodexStack is a behavioral carbon copy of pstack's core workflow and proof obligations, not a file-for-file clone. Codex-native authority boundaries remain stricter for external mutations such as pushes, PR changes, merges, deployments, and messages.
+CodexStack targets behavioral carbon parity with pstack's core workflow and proof obligations, not a file-for-file clone. The checked-in contracts are mapped; fresh-model behavior and the live Box-to-PR path remain separately evidenced in the evaluation record. Codex-native authority boundaries remain stricter for external mutations such as pushes, PR changes, merges, deployments, and messages.
 
 | Preserved | Codex-native replacement |
 | --- | --- |

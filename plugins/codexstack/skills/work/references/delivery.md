@@ -149,12 +149,12 @@ Pause is explicit. “Keep going” or “continue while I am away” routes to 
 For Git worktrees, first collect exact `git worktree list --porcelain -z` identity through the read-only helper. Supply a bounded JSON document with `contract_version: codexstack.worktree-evidence.v1`, current `observed_at`, and one row per exact worktree path. Each row has `active`, `pinned`, `last_used_at`, and `pr`. PR state is `OPEN`, `CLOSED`, `MERGED`, `NONE`, or `UNKNOWN`; provider-backed states also carry number and the current exact head SHA. Gather those facts from live session ownership, explicit pins, durable use receipts, and a fresh provider observation. Do not invent missing evidence.
 
 ```bash
-python3 plugins/codexstack/skills/work/scripts/worktree_audit.py \
+python3 "$WORK_SKILL/scripts/worktree_audit.py" \
   . --evidence .codexstack/worktree-evidence.json \
   --base-ref refs/remotes/origin/main
 ```
 
-The helper does not fetch or mutate. Missing, stale, conflicting, or incomplete use and PR evidence returns `review`. Tracked work, an active or pinned owner, recent use, or an open PR returns `hold`. `safe` needs confirmed merge state and clear use evidence, but safe is advice only, never deletion authority.
+Resolve `WORK_SKILL` to the absolute directory containing the loaded Work `SKILL.md`; do not assume a source checkout. The helper does not fetch or mutate. Missing, stale, conflicting, or incomplete use and PR evidence returns `review`. Tracked work, an active or pinned owner, recent use, or an open PR returns `hold`. `safe` needs confirmed merge state and clear use evidence, but safe is advice only, never deletion authority.
 
 1. Derive exact targets from the audit and other authoritative listings, never broad globs or guessed paths.
 2. Inspect each target for uncommitted work, active use, open PRs, recoverability, and user-owned state.

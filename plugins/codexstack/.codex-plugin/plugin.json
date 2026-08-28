@@ -1,6 +1,6 @@
 {
   "name": "codexstack",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "High-throughput, evidence-driven engineering workflows for Codex",
   "author": {
     "name": "Devion Villegas",
@@ -19,6 +19,7 @@
     "workflow"
   ],
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "CodexStack",
     "shortDescription": "Poteto-grade Codex work",

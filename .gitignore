@@ -1,7 +1,8 @@
 __pycache__/
 *.py[cod]
 .DS_Store
-.codexstack/
+.codexstack/*
+!.codexstack/worker.json
 captures/
 recordings/
 .env

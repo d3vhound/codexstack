@@ -29,7 +29,7 @@ REPO = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 PLUGIN = re.compile(
     r"^[A-Za-z0-9][A-Za-z0-9_.-]*@[A-Za-z0-9][A-Za-z0-9_.-]*$"
 )
-BOX_ID = re.compile(r"^bx_[A-Za-z0-9]+$")
+BOX_ID = re.compile(r"^bx_[23456789abcdefghjkmnpqrstuvwxyz]{8}$")
 MAX_TTL = 2_592_000
 
 
@@ -205,7 +205,7 @@ def find_box_id(output: str) -> str:
             found = None
         if found:
             return found
-    match = re.search(r"\bbx_[A-Za-z0-9]+\b", output)
+    match = re.search(r"\bbx_[23456789abcdefghjkmnpqrstuvwxyz]{8}\b", output)
     if match:
         return match.group(0)
     raise BoxctlError("Box was created but its ID could not be parsed; run 'box list --all'")

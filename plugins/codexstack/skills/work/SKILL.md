@@ -1,6 +1,6 @@
 ---
 name: work
-description: "Run explicit Poteto-style, high-throughput software engineering in Codex: investigation, architecture, implementation, review, exact-revision delivery, bounded autonomy, or multi-agent programs. Use when the user invokes CodexStack/Poteto mode or asks to work in that style."
+description: "Run explicit Poteto-style, high-throughput software engineering in Codex: investigation, architecture, implementation, review, exact-revision delivery, bounded autonomy, or multi-agent programs. Use when the user invokes CodexStack/Poteto mode or asks to work in that style. Contract codexstack.work.v0.3.0."
 ---
 
 # CodexStack Work
