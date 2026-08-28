@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "codexstack_control": {
+      "command": "python3",
+      "args": ["-m", "codexstack_control", "mcp"],
+      "cwd": "runtime",
+      "env_vars": [
+        "BOX_API_KEY",
+        "BOX_ID",
+        "CODEXSTACK_ALLOWED_REPOS",
+        "CODEXSTACK_BOX_BASE_URL",
+        "CODEXSTACK_BOX_ENVIRONMENT",
+        "CODEXSTACK_BOX_TEMPLATE",
+        "CODEXSTACK_CONTROL_DB",
+        "CODEXSTACK_DEFAULT_TTL_SECONDS",
+        "CODEXSTACK_MAX_PARALLEL",
+        "CODEXSTACK_MAX_TTL",
+        "GH_TOKEN",
+        "GITHUB_TOKEN"
+      ],
+      "startup_timeout_sec": 15,
+      "tool_timeout_sec": 21600
+    }
+  }
+}

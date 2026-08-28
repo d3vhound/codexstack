@@ -32,7 +32,7 @@ boxctl = load_script("codexstack_boxctl_tests", "boxctl.py")
 doctor = load_script("codexstack_box_doctor_tests", "doctor.py")
 
 
-BOX_ID = "bx_AbC123"
+BOX_ID = "bx_23456789"
 
 
 class FakeRunner:
@@ -143,10 +143,11 @@ class ProfileAndIdentifierTests(unittest.TestCase):
                     boxctl.finite_ttl(invalid)
 
     def test_box_ids_and_github_shorthand_are_strict(self) -> None:
-        for valid in (BOX_ID, "bx_0"):
+        for valid in (BOX_ID, "bx_abcdefgh"):
             self.assertEqual(boxctl.box_id(valid), valid)
         for invalid in (
             "bx_",
+            "bx_0",
             "bx_has-hyphen",
             "BX_ABC",
             "abc123",

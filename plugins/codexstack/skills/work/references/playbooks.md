@@ -199,7 +199,7 @@ Use this reference for every multi-step request. Select one primary playbook. Co
 3. **Explore.** Delegate bounded read-only slices that return entry points, conventions, tests, and file pointers.
 4. **Write the fixed skeleton.** Copy every heading and block below in order. One unit or pull request owns one change and its evidence.
 5. **Write cleanly.** Treat the body as a how-to. Keep explanations and references in appendices.
-6. **Check the plan.** Run `python3 plugins/codexstack/skills/work/scripts/check_plan.py <plan.md>` and fix every finding.
+6. **Check the plan.** Resolve `WORK_SKILL` to the directory containing the loaded Work `SKILL.md`, run `python3 "$WORK_SKILL/scripts/check_plan.py" <plan.md>`, and fix every finding.
 7. **Hand back.** Report the plan path and check output, then stop until explicit go.
 
 Copy this skeleton without reordering or dropping headings:

@@ -17,7 +17,7 @@ CodexStack may read a project policy at `.agents/codexstack-models.json` or a pe
 5. **Validate.** Every real ID must be in the detected set and every panel must contain 1 through 16 entries. Run the passive validator with one flag per detected model:
 
    ```bash
-   python3 plugins/codexstack/skills/work/scripts/model_policy.py \
+   python3 "$WORK_SKILL/scripts/model_policy.py" \
      .agents/codexstack-models.json \
      --available gpt-example-a --available gpt-example-b
    ```
@@ -27,4 +27,4 @@ CodexStack may read a project policy at `.agents/codexstack-models.json` or a pe
 7. **Use.** At each delegation, load the winning policy once. Omit `model` for an alias. Otherwise pass the exact validated ID. If Codex still rejects a formerly observed ID, use an available same-family equivalent or inherit the parent for the current run, disclose the fallback, and offer a separate policy update. Do not block useful read-only investigation on a stale preference.
 8. **Offer verification once.** Inspect for a project verifier or real interaction harness. If neither exists, offer once to create a project-local verification skill. A decline ends setup without pressure.
 
-The validator is read-only, standard-library-only, and does not discover entitlements or write Codex configuration. Optional agent TOMLs remain copyable role defaults, not the persistent policy itself.
+Resolve `WORK_SKILL` to the absolute directory containing the loaded Work `SKILL.md`; do not assume a source checkout. The validator is read-only, standard-library-only, and does not discover entitlements or write Codex configuration. Optional agent TOMLs remain copyable role defaults, not the persistent policy itself.

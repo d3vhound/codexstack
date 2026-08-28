@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "codexstack"
+CONTROL = PLUGIN / "runtime" / "codexstack_control"
 SKILLS = PLUGIN / "skills"
 WORK = SKILLS / "work"
 BOX = SKILLS / "box"
@@ -124,14 +125,34 @@ def check_marketplace(validator: Validator) -> None:
     marketplace = validator.load_json(ROOT / ".agents" / "plugins" / "marketplace.json")
     required = {
         "name", "version", "description", "author", "homepage", "repository",
-        "license", "keywords", "skills", "interface",
+        "license", "keywords", "skills", "mcpServers", "interface",
     }
     validator.require(required <= manifest.keys(), f"plugin manifest missing: {sorted(required - manifest.keys())}")
     validator.require(manifest.get("name") == "codexstack", "plugin name must be codexstack")
-    validator.require(manifest.get("version") == "0.2.0", "plugin version must be 0.2.0")
+    validator.require(manifest.get("version") == "0.3.0", "plugin version must be 0.3.0")
     validator.require(manifest.get("license") == "MIT", "plugin license must be MIT")
     validator.require(manifest.get("repository") == "https://github.com/d3vhound/codexstack", "repository URL is wrong")
     validator.require(manifest.get("skills") == "./skills/", "manifest skills path must be ./skills/")
+    validator.require(manifest.get("mcpServers") == "./.mcp.json", "manifest mcpServers path must be ./.mcp.json")
+    mcp = validator.load_json(PLUGIN / ".mcp.json")
+    validator.require(set(mcp) == {"mcpServers"}, "MCP companion must contain only mcpServers")
+    servers = mcp.get("mcpServers")
+    validator.require(isinstance(servers, dict), "MCP companion mcpServers must be an object")
+    if isinstance(servers, dict):
+        validator.require(set(servers) == {"codexstack_control"}, "MCP companion must expose only codexstack_control")
+        control = servers.get("codexstack_control")
+        validator.require(isinstance(control, dict), "codexstack_control must be an object")
+        if isinstance(control, dict):
+            validator.require(control.get("command") == "python3", "codexstack_control must use python3")
+            validator.require(
+                control.get("args") == ["-m", "codexstack_control", "mcp"],
+                "codexstack_control must launch the bundled stdio module",
+            )
+            validator.require(control.get("cwd") == "runtime", "codexstack_control cwd must be runtime")
+            validator.require(
+                control.get("tool_timeout_sec") == 21600,
+                "codexstack_control must allow bounded setup and verification",
+            )
     interface = manifest.get("interface")
     validator.require(isinstance(interface, dict), "plugin interface must be an object")
     if isinstance(interface, dict):
@@ -269,6 +290,19 @@ def require_contracts(runtime_text: str, validator: Validator) -> None:
 
 def check_code_and_provenance(validator: Validator) -> None:
     required_files = [
+        PLUGIN / ".mcp.json",
+        CONTROL / "__init__.py",
+        CONTROL / "__main__.py",
+        CONTROL / "model.py",
+        CONTROL / "store.py",
+        CONTROL / "box_client.py",
+        CONTROL / "controller.py",
+        CONTROL / "mcp.py",
+        CONTROL / "http_server.py",
+        CONTROL / "static" / "index.html",
+        CONTROL / "static" / "app.js",
+        CONTROL / "static" / "styles.css",
+        ROOT / ".codexstack" / "worker.json",
         WORK / "scripts" / "state.py",
         WORK / "scripts" / "pr_readiness.py",
         WORK / "scripts" / "check_plan.py",
@@ -286,9 +320,28 @@ def check_code_and_provenance(validator: Validator) -> None:
         ROOT / "tests" / "test_box.py",
         ROOT / "docs" / "PARITY.md",
         ROOT / "docs" / "BOX.md",
+        ROOT / "docs" / "CONTROL.md",
     ]
     for path in required_files:
         validator.require(path.is_file(), f"missing required artifact: {relative(path)}")
+
+    worker = validator.load_json(ROOT / ".codexstack" / "worker.json")
+    validator.require(
+        set(worker) == {"contractVersion", "baseRef", "workingDirectory", "setup", "verify", "preview"},
+        ".codexstack/worker.json has unexpected fields",
+    )
+    validator.require(worker.get("contractVersion") == "codexstack.worker.v1", "worker contract version is wrong")
+    validator.require(worker.get("baseRef") == "main", "worker baseRef must be main")
+    validator.require(worker.get("workingDirectory") == ".", "worker workingDirectory must be .")
+    validator.require(worker.get("setup") == [], "worker setup must be empty")
+    validator.require(
+        worker.get("verify") == [
+            ["python3", "scripts/validate.py"],
+            ["python3", "-m", "unittest", "discover", "-s", "tests", "-v"],
+        ],
+        "worker verify commands are wrong",
+    )
+    validator.require(worker.get("preview") is None, "worker preview must be null")
 
     textual_files = [path for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts]
     secret_patterns = {

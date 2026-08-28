@@ -213,7 +213,7 @@ class PlaybookContractTests(unittest.TestCase):
             "when its unit, live, and perf boxes are all checked."
         )
         self.assertGreaterEqual(plan.count(verification_rule), 4)
-        self.assertIn("scripts/check_plan.py <plan.md>", plan)
+        self.assertIn('python3 "$WORK_SKILL/scripts/check_plan.py" <plan.md>', plan)
         self.assertIn("Ten live lanes at the exact PR head", plan)
         for lane in range(1, 11):
             self.assertIn(f"Lane {lane}.", plan)

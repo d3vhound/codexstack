@@ -2,6 +2,8 @@
 
 ASCII Box is CodexStack's optional cloud execution layer. The recommended setup is deliberately simple: freeze public tooling into a credential-free template, then inject narrowly scoped account access from a private Box environment each time a Box starts.
 
+The shell paths in this guide are for a source checkout. After marketplace installation, invoke `$codexstack:box`; the skill resolves its bundled helpers from the installed plugin directory and must not guess a cache path.
+
 ## What this gives you
 
 - disposable Linux compute with Codex CLI, `git`, `gh`, Node, Python, SSH, snapshots, and finite TTLs;
@@ -126,6 +128,30 @@ python3 plugins/codexstack/skills/box/scripts/boxctl.py resume "$BOX_ID" --yes
 
 The helper intentionally omits permanent deletion. Use Box's native destructive command only after reviewing the exact target and accepting that it cannot be recovered. A private working Box can contain injected credentials in its disk snapshots, so keep it private and never promote it to the shared named template.
 
+## 6. Use the managed control surface
+
+For a Cursor-like view of several managed workers, run CodexStack's thin local control service instead of launching prompts by hand:
+
+```bash
+export BOX_API_KEY="..."
+export CODEXSTACK_ALLOWED_REPOS="owner/repository"
+export CODEXSTACK_BOX_ENVIRONMENT="codexstack"
+export CODEXSTACK_BOX_TEMPLATE="codexstack-base"
+
+PYTHONPATH=plugins/codexstack/runtime \
+  python3 -m codexstack_control serve
+```
+
+Open `http://127.0.0.1:8765`. Each explicit start creates one Box worker and one branch. The default four-run limit controls admission only; it does not create patrol agents, maintain a queue, or schedule work. Box continues to own prompt status and events, and GitHub continues to own the PR.
+
+The target repository must commit `.codexstack/worker.json`. Setup, verification, and optional preview commands are argument arrays. The controller resolves an exact base SHA, prepares `codexstack/<run-id>-<slug>`, runs setup, starts a managed `$codexstack:work` prompt, and independently verifies the final non-draft PR head after declared checks pass. It never merges.
+
+Use **Send next** to queue a follow-up behind the current prompt. **Interrupt & redirect** interrupts the active Box-wide prompt before replacement direction is sent. Desktop URLs are minted when clicked. Protected preview URLs are requested from Box hosting when clicked and remain stable for that Box and port. Neither is saved. A standalone process started with `box ssh` remains outside the managed event stream.
+
+The installed plugin launches the same ten controls over stdio without requiring the web service. UI mode also exposes `http://127.0.0.1:8765/mcp`. Do not run both controller processes against one database. Signed Box URLs are not returned through MCP. See [CONTROL.md](CONTROL.md) for the exact run contract, environment variables, security boundaries, and offline verification limits.
+
+The built-in listener remains loopback-only. A private mobile browser may use an operator-controlled HTTPS tunnel with a separate control token and `CODEXSTACK_PUBLIC_URL`; do not expose it with `box host`. ChatGPT Work MCP still requires a hosted HTTPS service with OAuth and per-user authorization and is not part of v0.
+
 ## Plugins, MCP, and skills
 
 Refresh CodexStack inside a running Box with:
@@ -169,9 +195,10 @@ For Box-backed mobile work:
 
 The desktop app starts Codex app-server through SSH on the Box. The phone connects to the paired desktop host, not directly to a bare CLI session. OpenAI does not document retroactive discovery or takeover of unrelated standalone CLI threads, so do not rely on it.
 
-For custom tooling only, `codex app-server --listen ws://127.0.0.1:4500` plus `box forward BOX_ID --remote 4500 --local 4500` can create a loopback tunnel. WebSocket app-server transport is experimental; never bind it to a public interface or expose it with `box host`.
+For custom tooling only, `codex app-server --listen ws://127.0.0.1:4500` plus `box forward BOX_ID --remote 4500 --local 4500` can create a loopback tunnel. This path is separate from the CodexStack control service and is not part of its v0 run protocol. WebSocket app-server transport is experimental; never bind it to a public interface or expose it with `box host`.
 
 ## Sources
 
 - ASCII: [Box quickstart](https://docs.ascii.dev/box/quickstart), [CLI reference](https://docs.ascii.dev/box/cli-reference), [environments](https://docs.ascii.dev/box/environments), [snapshots](https://docs.ascii.dev/box/snapshots), [long-running tasks](https://docs.ascii.dev/box/long-running-tasks), [SSH access](https://docs.ascii.dev/box/ssh-access), [machine capabilities](https://docs.ascii.dev/box/machines), [API v1](https://docs.ascii.dev/box/api/v1)
+- ASCII control APIs: [agent events](https://docs.ascii.dev/box/api/reference/agent/list-box-events), [desktop streaming](https://docs.ascii.dev/box/desktop-streaming), [application hosting](https://docs.ascii.dev/box/hosting), [setup scripts](https://docs.ascii.dev/box/setup), [billing and limits](https://docs.ascii.dev/box/billing)
 - OpenAI: [Codex authentication](https://developers.openai.com/codex/auth), [pricing](https://developers.openai.com/codex/pricing), [CLI](https://developers.openai.com/codex/cli), [developer commands](https://developers.openai.com/codex/developer-commands), [plugins](https://developers.openai.com/codex/plugins), [skills](https://developers.openai.com/codex/build-skills), [MCP](https://developers.openai.com/codex/mcp), [remote connections](https://developers.openai.com/codex/remote-connections), [app-server](https://developers.openai.com/codex/app-server)

@@ -7,6 +7,8 @@ CodexStack is a Codex plugin distributed through the marketplace in this reposit
 - The plugin manifest is plugins/codexstack/.codex-plugin/plugin.json.
 - The engineering entry point is plugins/codexstack/skills/work/SKILL.md.
 - The explicit cloud-environment entry point is plugins/codexstack/skills/box/SKILL.md.
+- The thin Box control runtime is plugins/codexstack/runtime/codexstack_control/.
+- Repository setup and verification are declared in .codexstack/worker.json.
 - Supporting contracts live beside each skill in references/.
 - The repository marketplace is .agents/plugins/marketplace.json.
 
